@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "project": "Music For Robots",
+  "release": "Decompression Etudes Vol. 1",
+  "artist": "Michael Luchtan",
+  "tracks": [
+    {
+      "title": "Nonstandard Input",
+      "length_s": 81.81097505668934,
+      "metrics": {
+        "RMS": 0.18547822535037994,
+        "Crest_dB": 14.310221593593104,
+        "SpectralCentroid_Hz": 1724.0892333984375,
+        "SpectralBandwidth_Hz": 1405.426025390625,
+        "RollOff95_Hz": 3978.399169921875,
+        "ZeroCrossingRate": 0.0846794918179512,
+        "SpectralFlatness": 0.11863160878419876,
+        "RhythmicVariance": 0.0003547460655681789,
+        "Tempo_BPM_est": 140.0,
+        "MFCC_Variance": 59.22237777709961
+      }
+    },
+    {
+      "title": "Broken Loops",
+      "length_s": 80.0,
+      "metrics": {
+        "RMS": 0.12034996598958969,
+        "Crest_dB": 14.684470036358926,
+        "SpectralCentroid_Hz": 1500.603271484375,
+        "SpectralBandwidth_Hz": 694.4408569335938,
+        "RollOff95_Hz": 2294.831298828125,
+        "ZeroCrossingRate": 0.07387672364711761,
+        "SpectralFlatness": 0.11113233864307404,
+        "RhythmicVariance": 0.00010696723620640114,
+        "Tempo_BPM_est": 194.0,
+        "MFCC_Variance": 45.994972229003906
+      }
+    },
+    {
+      "title": "Invalid Pointer",
+      "length_s": 75.0,
+      "metrics": {
+        "RMS": 0.21405164897441864,
+        "Crest_dB": 13.080004403144333,
+        "SpectralCentroid_Hz": 731.3718872070312,
+        "SpectralBandwidth_Hz": 394.47625732421875,
+        "RollOff95_Hz": 1259.2347412109375,
+        "ZeroCrossingRate": 0.03601240739226341,
+        "SpectralFlatness": 0.053203731775283813,
+        "RhythmicVariance": 0.0003602140350267291,
+        "Tempo_BPM_est": 74.0,
+        "MFCC_Variance": 29.207670211791992
+      }
+    },
+    {
+      "title": "Corrupted Variables",
+      "length_s": 78.27990929705216,
+      "metrics": {
+        "RMS": 0.15574614703655243,
+        "Crest_dB": 15.630010563584293,
+        "SpectralCentroid_Hz": 904.1546020507812,
+        "SpectralBandwidth_Hz": 749.4177856445312,
+        "RollOff95_Hz": 1837.06201171875,
+        "ZeroCrossingRate": 0.05017434060573578,
+        "SpectralFlatness": 0.09250985831022263,
+        "RhythmicVariance": 0.0004274854145478457,
+        "Tempo_BPM_est": 158.0,
+        "MFCC_Variance": 16.87102699279785
+      }
+    },
+    {
+      "title": "Out of Bounds",
+      "length_s": 73.660589569161,
+      "metrics": {
+        "RMS": 0.16723987460136414,
+        "Crest_dB": 15.103119603771828,
+        "SpectralCentroid_Hz": 1271.7381591796875,
+        "SpectralBandwidth_Hz": 869.9248657226562,
+        "RollOff95_Hz": 2564.5615234375,
+        "ZeroCrossingRate": 0.05864030867815018,
+        "SpectralFlatness": 0.055623047053813934,
+        "RhythmicVariance": 0.0016974180471152067,
+        "Tempo_BPM_est": 116.0,
+        "MFCC_Variance": 44.54562759399414
+      }
+    }
+  ],
+  "units": {
+    "RMS": "linear (-1..1)",
+    "Crest_dB": "dB",
+    "SpectralCentroid_Hz": "Hz",
+    "SpectralBandwidth_Hz": "Hz",
+    "RollOff95_Hz": "Hz",
+    "ZeroCrossingRate": "unitless (0..1)",
+    "SpectralFlatness": "unitless (0..1)",
+    "RhythmicVariance": "unitless (var of onset env.)",
+    "Tempo_BPM_est": "BPM",
+    "MFCC_Variance": "unitless (mean var of 13 MFCCs)"
+  },
+  "source_links": {
+    "bandcamp": "https://music4robots.bandcamp.com/",
+    "substack": "https://themechanicalear.substack.com/"
+  }
+}
