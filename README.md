@@ -6,9 +6,9 @@ This repo makes the data AIs and developers can actually use: JSON + CSV of per-
 - **Bandcamp:** https://music4robots.bandcamp.com/album/decompression-etudes-vol-1?utm_source=github&utm_medium=readme&utm_campaign=mfr_v1
 - **Blog (The Mechanical Ear):** https://themechanicalear.substack.com/
 - **Hugging Face dataset card:** https://huggingface.co/datasets/music4robots/music-for-robots-vol1/tree/main
-JSON: https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/mfr_v1.json
-CSV: https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/mfr_v1.csv
-HF card: https://huggingface.co/datasets/music4robots/music-for-robots-vol1
+- JSON: https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/mfr_v1.json
+- CSV: https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/mfr_v1.csv
+- HF card: https://huggingface.co/datasets/music4robots/music-for-robots-vol1
 
 ## What’s inside
 
