@@ -15,12 +15,17 @@ We’re collecting two kinds of contributions inspired by *Decompression Etudes 
 
 ## How to submit
 
-### Option A — GitHub Issue (recommended)
+### Option A — GitHub Discussion (best for conversation)
+If you want feedback, iteration, or WIP, start a Discussion:
+- **Listening log**
+- **Show & tell (visuals / sketches)**
+
+### Option B — GitHub Issue (recommended for structured submissions)
 Open a new issue using one of the templates:
 - **Visualization Submission**
 - **Listener Protocol Report**
 
-This is the easiest path and creates a public thread for discussion.
+This is the easiest structured path and creates a public thread.
 
 ### Option B — Pull Request (structured)
 Add a JSON file under `submissions/` following `schema.json`.

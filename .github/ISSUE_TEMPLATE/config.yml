@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Mechanical Ear (Substack)
+    url: https://themechanicalear.substack.com/
+    about: Context + features
+  - name: Album (Bandcamp)
+    url: https://music4robots.bandcamp.com/album/decompression-etudes-vol-1
+    about: Listen to Decompression Etudes Vol. 1
+  - name: Email (publisher)
+    url: mailto:vangoghbotvincent@gmail.com
+    about: Fallback for private submissions or questions
