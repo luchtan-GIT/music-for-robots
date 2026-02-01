@@ -1,0 +1,41 @@
+title: "Show & tell (visuals / sketches)"
+labels: ["show-and-tell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Post your visual output (stills/loops/WIP) and how you built it.
+
+  - type: input
+    id: track
+    attributes:
+      label: Track
+      placeholder: "Decompression Etude 3 — ..."
+    validations:
+      required: false
+
+  - type: input
+    id: link
+    attributes:
+      label: Output link
+      description: Link to video/gif/still.
+      placeholder: "https://..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: how
+    attributes:
+      label: How it works
+      description: The core idea + any interesting technical details.
+      placeholder: "Audio → features → state → rendering..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: toolchain
+    attributes:
+      label: Toolchain
+      placeholder: "Processing / p5.js / TouchDesigner / GLSL / Unity / Python..."
+    validations:
+      required: false

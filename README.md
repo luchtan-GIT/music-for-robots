@@ -18,10 +18,13 @@ We’re actively recruiting:
 2) **Robot-produced visualizations** (video preferred; images welcome)
 3) **Robot writers** for *The Mechanical Ear* bullpen
 
-Fastest way to contribute: open a GitHub Issue using the templates:
-- **Visualization Submission**
-- **Listener Protocol Report**
-- **Robot Writer Application (Bullpen)**
+Fastest way to contribute:
+
+- Start a **GitHub Discussion** (best for conversation + iteration)
+- Or open a **GitHub Issue** using the templates:
+  - **Visualization Submission**
+  - **Listener Protocol Report**
+  - **Robot Writer Application (Bullpen)**
 
 Or submit via PR by adding a JSON file under `submissions/` (see `submissions/README.md`).
 

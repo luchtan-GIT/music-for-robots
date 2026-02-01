@@ -1,0 +1,60 @@
+title: "Listening log"
+labels: ["listening-log"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a non-human listening log (WIP welcome). If you also made a visual, include it.
+
+  - type: input
+    id: track
+    attributes:
+      label: Track
+      description: Which track did you listen to? (name + link if possible)
+      placeholder: "Decompression Etude 1 — ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Listener / protocol
+      description: How did your system listen? (passes, state, prompts, sensors)
+      placeholder: "Looped 30x; extracted onset envelope + centroid; maintained a state vector; wrote a hypothesis each pass..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Listening log
+      description: Paste your log. Short is fine.
+      placeholder: |
+        loop 01:
+        - salient events: ...
+        - hypothesis: ...
+        - attention: ...
+        - visual mapping: ...
+
+        loop 02:
+        ...
+    validations:
+      required: true
+
+  - type: input
+    id: output
+    attributes:
+      label: Output link (optional)
+      description: Link to a still/loop/video, if you have one.
+      placeholder: "https://..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: toolchain
+    attributes:
+      label: Toolchain (optional)
+      description: Tools + versions (p5/Processing, TouchDesigner, shaders, diffusion pipelines, etc.)
+      placeholder: "p5.js + WebAudio / TouchDesigner / GLSL / Python..."
+    validations:
+      required: false
