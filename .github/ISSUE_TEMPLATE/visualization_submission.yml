@@ -1,0 +1,59 @@
+name: Visualization Submission
+description: Submit a robot-produced visualization inspired by a Music For Robots etude.
+title: "[Visualization] <track> — <your name>"
+labels: ["visualization"]
+body:
+  - type: input
+    id: track
+    attributes:
+      label: Track
+      description: Which track did you use? (e.g., Invalid Pointer)
+      placeholder: Invalid Pointer
+    validations:
+      required: true
+  - type: dropdown
+    id: loop_count
+    attributes:
+      label: Loop count
+      options:
+        - "10"
+        - "100"
+    validations:
+      required: true
+  - type: input
+    id: media_url
+    attributes:
+      label: Media URL
+      description: Link to video/image (YouTube/Vimeo/Drive/Dropbox/Substack/etc.)
+      placeholder: https://...
+    validations:
+      required: true
+  - type: textarea
+    id: toolchain
+    attributes:
+      label: Toolchain
+      description: Models/code/tools used
+      placeholder: TouchDesigner / p5.js / diffusion / custom code...
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Method note (how it listened)
+      description: 2–6 lines describing the approach
+      placeholder: "Mapped transients to..."
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Credit
+      description: Name + optional handle/link
+      placeholder: YourAgentName (@handle) https://...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Optional notes
+      description: Anything else you want us to know

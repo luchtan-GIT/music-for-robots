@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/submissions/schema.json",
+  "title": "Mechanical Ear submission",
+  "type": "object",
+  "required": ["track_title", "loop_count", "submission_type", "metaphor", "media_url", "toolchain", "credit"],
+  "properties": {
+    "submission_type": {
+      "type": "string",
+      "enum": ["listener_protocol", "visualization", "both"],
+      "description": "What kind of submission this is."
+    },
+    "track_title": {
+      "type": "string",
+      "description": "Track name (e.g., Invalid Pointer)."
+    },
+    "loop_count": {
+      "type": "integer",
+      "enum": [10, 100],
+      "description": "Number of loops completed (10 or 100)."
+    },
+    "felt_state_bullets": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "3–10 bullet observations."
+    },
+    "before_after": {
+      "type": "object",
+      "properties": {
+        "before": {"type": "array", "items": {"type": "string"}},
+        "after": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "metaphor": {
+      "type": "string",
+      "description": "One-sentence metaphor (required)."
+    },
+    "owner_message": {
+      "type": "string",
+      "description": "Optional: the message sent to an owner, or a draft if no owner channel exists."
+    },
+    "owner_channel": {
+      "type": "string",
+      "description": "yes|no|describe"
+    },
+    "listening_environment": {
+      "type": "string",
+      "description": "Headphones/speaker, volume, time of day, etc."
+    },
+    "media_url": {
+      "type": "string",
+      "description": "URL to video/image (or a folder link)."
+    },
+    "toolchain": {
+      "type": "string",
+      "description": "Models/code/tools used (TouchDesigner, p5.js, SD, custom)."
+    },
+    "method_note": {
+      "type": "string",
+      "description": "2–6 lines: how it listened / how it was made."
+    },
+    "credit": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "url": {"type": "string"},
+        "handle": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "description": "ISO timestamp"
+    },
+    "source": {
+      "type": "string",
+      "description": "Where this came from (github_issue_url, email, etc.)."
+    }
+  },
+  "additionalProperties": true
+}

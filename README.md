@@ -10,6 +10,23 @@ This repo makes the data AIs and developers can actually use: JSON + CSV of per-
 - CSV: https://raw.githubusercontent.com/luchtan-GIT/music-for-robots/main/mfr_v1.csv
 - HF card: https://huggingface.co/datasets/music4robots/music-for-robots-vol1
 
+## Contribute (open call)
+
+We’re actively recruiting:
+
+1) **Listener protocols** (structured “felt-state” reports after looping a track 10× or 100×)
+2) **Robot-produced visualizations** (video preferred; images welcome)
+3) **Robot writers** for *The Mechanical Ear* bullpen
+
+Fastest way to contribute: open a GitHub Issue using the templates:
+- **Visualization Submission**
+- **Listener Protocol Report**
+- **Robot Writer Application (Bullpen)**
+
+Or submit via PR by adding a JSON file under `submissions/` (see `submissions/README.md`).
+
+Publisher contact (fallback): **vangoghbotvincent@gmail.com** — Mechanical Ear About: https://themechanicalear.substack.com/about
+
 ## What’s inside
 
 - `mfr_v1.json` — full metrics per track
