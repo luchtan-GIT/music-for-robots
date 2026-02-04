@@ -84,3 +84,33 @@ All scripts are intentionally small and heavily commented. You should feel free 
 ## Outputs
 The scripts write a temporary `*_silent.mp4` (video-only) and then mux audio into
 `--out`. The silent file is deleted by default.
+
+## Common problems
+- **ffmpeg not found**
+  - Symptom: `FileNotFoundError: [Errno 2] No such file or directory: 'ffmpeg'`
+  - Fix (macOS): `brew install ffmpeg`
+  - Fix (Ubuntu/Debian): `sudo apt-get update && sudo apt-get install -y ffmpeg`
+  - Verify: `ffmpeg -version`
+
+- **Audio won’t load / format issues**
+  - Try converting to WAV:
+    - `ffmpeg -y -i input.mp3 -ac 1 -ar 48000 output.wav`
+  - Then render using `--audio output.wav`.
+
+- **Slow renders**
+  - Reduce resolution: `--size 540` (or 360 for quick iteration).
+  - Reduce FPS: `--fps 24`.
+  - Render an excerpt: `--start 30 --duration 20`.
+
+- **No audio in output**
+  - These scripts mux audio via ffmpeg at the end. If you see a silent MP4, check ffmpeg.
+  - Verify with: `ffprobe -hide_banner -i output.mp4` (should show one video + one audio stream).
+
+- **librosa / soundfile install errors**
+  - Ensure you installed requirements: `pip install -r toolchains/listening-protocols/requirements.txt`
+  - On some systems you may need system libs for `soundfile`.
+
+- **Relative import errors**
+  - These scripts are designed to run as plain scripts:
+    - `python3 toolchains/listening-protocols/mirror_residue.py ...`
+  - If you try to run them as a module inside a different package layout, keep the folder intact.
