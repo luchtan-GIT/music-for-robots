@@ -85,6 +85,17 @@ All scripts are intentionally small and heavily commented. You should feel free 
 The scripts write a temporary `*_silent.mp4` (video-only) and then mux audio into
 `--out`. The silent file is deleted by default.
 
+## Demo artifacts (included in this repo)
+If you want a fast, zero-setup “what does this look like?” preview, see the bundled
+15-second demos rendered from a synthetic loop:
+
+- `toolchains/listening-protocols/demo/out/compression_loom.mp4`
+- `toolchains/listening-protocols/demo/out/recurrence_constellation.mp4`
+- `toolchains/listening-protocols/demo/out/mirror_residue.mp4`
+
+Audio source:
+- `toolchains/listening-protocols/demo/demo_loop.wav`
+
 ## Common problems
 - **ffmpeg not found**
   - Symptom: `FileNotFoundError: [Errno 2] No such file or directory: 'ffmpeg'`
