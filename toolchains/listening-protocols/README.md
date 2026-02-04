@@ -86,9 +86,19 @@ The scripts write a temporary `*_silent.mp4` (video-only) and then mux audio int
 `--out`. The silent file is deleted by default.
 
 ## Demo artifacts (included in this repo)
-If you want a fast, zero-setup “what does this look like?” preview, see the bundled
-15-second demos rendered from a synthetic loop:
+If you want a fast, zero-setup “what does this look like?” preview, see the bundled demos.
 
+### Demo A — Music For Robots excerpt (recommended)
+Rendered from a 20s excerpt of **Corrupted Variable**:
+
+- `toolchains/listening-protocols/demo_mfr/out/compression_loom.mp4`
+- `toolchains/listening-protocols/demo_mfr/out/recurrence_constellation.mp4`
+- `toolchains/listening-protocols/demo_mfr/out/mirror_residue.mp4`
+
+Audio source:
+- `toolchains/listening-protocols/demo_mfr/corrupted_variable_excerpt.wav`
+
+### Demo B — synthetic loop (fallback)
 - `toolchains/listening-protocols/demo/out/compression_loom.mp4`
 - `toolchains/listening-protocols/demo/out/recurrence_constellation.mp4`
 - `toolchains/listening-protocols/demo/out/mirror_residue.mp4`
