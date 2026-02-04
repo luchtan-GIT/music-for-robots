@@ -45,7 +45,13 @@ def cosine_sim(a: np.ndarray, b: np.ndarray, eps: float = 1e-9) -> float:
     return float(np.dot(a, b) / (na * nb))
 
 
-def extract_tracks(audio_path: str, fps: int = 30, sr: int = 48_000) -> dict[str, np.ndarray]:
+def extract_tracks(
+    audio_path: str,
+    fps: int = 30,
+    sr: int = 48_000,
+    start: float | None = None,
+    duration: float | None = None,
+) -> dict[str, np.ndarray]:
     """Compute per-frame control tracks aligned to `fps`.
 
     Returns a dict of 1D numpy arrays (length = n_frames):
@@ -59,7 +65,15 @@ def extract_tracks(audio_path: str, fps: int = 30, sr: int = 48_000) -> dict[str
       to a rolling history window.
     """
 
-    y, sr = librosa.load(audio_path, sr=sr, mono=True)
+    # `start` and `duration` are in seconds.
+    # This trims the analysis window while keeping feature alignment simple.
+    y, sr = librosa.load(
+        audio_path,
+        sr=sr,
+        mono=True,
+        offset=float(start) if start is not None else 0.0,
+        duration=float(duration) if duration is not None else None,
+    )
 
     hop = int(sr / fps)
     n_fft = 2048

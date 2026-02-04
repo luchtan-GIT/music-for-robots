@@ -53,8 +53,16 @@ def _to_bgr(rgb255: np.ndarray) -> tuple[int, int, int]:
     return (int(rgb255[2]), int(rgb255[1]), int(rgb255[0]))
 
 
-def render(audio: str, out: str, size: int = 720, fps: int = 30, seed: int = 22) -> None:
-    tr = extract_tracks(audio, fps=fps)
+def render(
+    audio: str,
+    out: str,
+    size: int = 720,
+    fps: int = 30,
+    seed: int = 22,
+    start: float | None = None,
+    duration: float | None = None,
+) -> None:
+    tr = extract_tracks(audio, fps=fps, start=start, duration=duration)
     T = len(tr["rms"])
 
     rng = np.random.default_rng(seed)
@@ -156,7 +164,7 @@ def render(audio: str, out: str, size: int = 720, fps: int = 30, seed: int = 22)
 
     vw.release()
 
-    mux_audio(out_silent, audio, out)
+    mux_audio(out_silent, audio, out, start=start, duration=duration)
 
 
 def main():
@@ -166,9 +174,19 @@ def main():
     ap.add_argument("--size", type=int, default=720)
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--seed", type=int, default=22)
+    ap.add_argument("--start", type=float, default=None, help="start time in seconds")
+    ap.add_argument("--duration", type=float, default=None, help="duration in seconds")
     args = ap.parse_args()
 
-    render(args.audio, args.out, size=args.size, fps=args.fps, seed=args.seed)
+    render(
+        args.audio,
+        args.out,
+        size=args.size,
+        fps=args.fps,
+        seed=args.seed,
+        start=args.start,
+        duration=args.duration,
+    )
 
 
 if __name__ == "__main__":

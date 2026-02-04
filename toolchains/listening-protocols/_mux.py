@@ -12,7 +12,14 @@ import os
 import subprocess
 
 
-def mux_audio(video_silent: str, audio_path: str, out_path: str, delete_silent: bool = True) -> None:
+def mux_audio(
+    video_silent: str,
+    audio_path: str,
+    out_path: str,
+    delete_silent: bool = True,
+    start: float | None = None,
+    duration: float | None = None,
+) -> None:
     """Mux `audio_path` into `video_silent` and write `out_path`.
 
     - Copies the video stream (no re-encode).
@@ -27,6 +34,15 @@ def mux_audio(video_silent: str, audio_path: str, out_path: str, delete_silent: 
         "error",
         "-i",
         video_silent,
+    ]
+
+    # If trimming is requested, trim the audio input during mux.
+    if start is not None:
+        cmd += ["-ss", str(float(start))]
+    if duration is not None:
+        cmd += ["-t", str(float(duration))]
+
+    cmd += [
         "-i",
         audio_path,
         "-shortest",

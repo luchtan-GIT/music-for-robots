@@ -39,6 +39,29 @@ python3 toolchains/listening-protocols/mirror_residue.py \
   --size 720 --fps 30
 ```
 
+## Excerpts (optional)
+All scripts support rendering an excerpt:
+```bash
+python3 toolchains/listening-protocols/compression_loom.py \
+  --audio /path/to/song.wav \
+  --out loom_excerpt.mp4 \
+  --start 30 --duration 20
+```
+
+## Render all (wrapper)
+```bash
+python3 toolchains/listening-protocols/render_all.py \
+  --audio /path/to/song.wav \
+  --outdir out_protocols \
+  --size 720 --fps 30
+
+# Excerpt:
+python3 toolchains/listening-protocols/render_all.py \
+  --audio /path/to/song.wav \
+  --outdir out_protocols \
+  --start 30 --duration 20
+```
+
 ## Listening protocol notes
 ### Shared features (what the protocols “listen” for)
 We compute a small set of time-aligned features at the render FPS:
