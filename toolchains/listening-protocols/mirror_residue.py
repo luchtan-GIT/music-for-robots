@@ -52,9 +52,28 @@ def render(
     seed: int = 25,
     start: float | None = None,
     duration: float | None = None,
+    loop_sec: float | None = None,
+    pred_driver: str = "none",  # none|mel|emb
 ) -> None:
-    tr = extract_tracks(audio, fps=fps, start=start, duration=duration)
+    tr = extract_tracks(audio, fps=fps, start=start, duration=duration, return_embedding=True, return_mel=(pred_driver == "mel"))
     T = len(tr["rms"])
+
+    # Optional: compute a real next-step predictor error and use it to drive the residue flare.
+    pred_err01 = None
+    if pred_driver in ("mel", "emb"):
+        try:
+            from _predictors import online_learning_curve
+
+            X = tr["mel_db"] if pred_driver == "mel" else tr["emb"]
+            # Conservative settings for stability.
+            res = online_learning_curve(X.astype(np.float32), k=4, lr=(0.003 if pred_driver == "mel" else 0.006), l2=(5e-4 if pred_driver == "mel" else 3e-4), seed=7)
+            e = res["err_rmse_t"].astype(np.float32)
+            # Robust normalize to 0..1 for visual drive
+            hi = float(np.quantile(e[np.isfinite(e)], 0.99)) if np.any(np.isfinite(e)) else 1.0
+            hi = max(hi, 1e-3)
+            pred_err01 = np.clip(e / hi, 0.0, 1.0).astype(np.float32)
+        except Exception:
+            pred_err01 = None
 
     W = H = int(size)
 
@@ -69,6 +88,7 @@ def render(
         "flux": 0.5,
         "rec": 0.5,
         "nov": 0.5,
+        "attn": 0.25,
     }
 
     hue = 0.55
@@ -77,20 +97,36 @@ def render(
         ("cen", "centroid"),
         ("bw", "bandwidth"),
         ("flux", "flux"),
-        ("rec", "rec"),
-        ("nov", "novelty"),
+        ("conf", "rec"),
+        ("attn", "attn"),
     ]
 
     for t in tqdm(range(T), desc="mirror_residue"):
+        nov = float(tr["novelty"][t])
+        nov_fast = float(tr.get("novelty_fast", tr["novelty"])[t])
+        hab = float(tr.get("habituation", np.zeros(T, np.float32))[t])
+
+        # Confidence: if we know loop period, compare against previous loop; otherwise use local recurrence.
+        conf = float(tr["rec"][t])
+        if loop_sec is not None and tr.get("emb", None) is not None:
+            loop_frames = int(round(loop_sec * fps))
+            if loop_frames > 0 and t - loop_frames >= 0:
+                from _audio_features import cosine_sim
+
+                conf = float(np.clip(cosine_sim(tr["emb"][t], tr["emb"][t - loop_frames]), 0.0, 1.0))
+
+        # Attention proxy: fast novelty gated by (1 - habituation)
+        attn = float(np.clip(nov_fast * (1.0 - hab) * 1.6, 0.0, 1.0))
+
         vals = {
             "centroid": float(tr["centroid"][t]),
             "bandwidth": float(tr["bandwidth"][t]),
             "flux": float(tr["flux"][t]),
-            "rec": float(tr["rec"][t]),
-            "nov": float(tr["novelty"][t]),
+            "rec": conf,
+            "nov": nov,
+            "attn": attn,
         }
         rec = vals["rec"]
-        nov = vals["nov"]
 
         # EMA rate: recurrence makes the predictor more confident (learn faster).
         alpha = 0.035 + 0.11 * rec
@@ -99,13 +135,36 @@ def render(
 
         # Residue: weighted absolute error.
         err = (
-            abs(vals["centroid"] - pred["centroid"]) * 0.26
-            + abs(vals["bandwidth"] - pred["bandwidth"]) * 0.18
-            + abs(vals["flux"] - pred["flux"]) * 0.22
-            + abs(vals["rec"] - pred["rec"]) * 0.18
-            + abs(vals["nov"] - pred["nov"]) * 0.16
+            abs(vals["centroid"] - pred["centroid"]) * 0.24
+            + abs(vals["bandwidth"] - pred["bandwidth"]) * 0.16
+            + abs(vals["flux"] - pred["flux"]) * 0.18
+            + abs(vals["rec"] - pred["rec"]) * 0.16
+            + abs(vals["attn"] - pred["attn"]) * 0.18
+            + abs(vals["nov"] - pred["nov"]) * 0.08
         )
-        err = float(np.clip(err * (1.1 + 1.7 * nov), 0, 1))
+
+        # Seam flare: if loop period is known, spike error near loop boundaries when join mismatch is high.
+        seam = 0.0
+        if loop_sec is not None and tr.get("emb", None) is not None:
+            loop_frames = int(round(loop_sec * fps))
+            if loop_frames > 8:
+                w = int(0.30 * fps)  # ±0.30s window
+                m = t % loop_frames
+                if m < w or m > (loop_frames - w):
+                    # measure mismatch between this moment and previous loop
+                    if t - loop_frames >= 0:
+                        from _audio_features import cosine_sim
+
+                        sim = float(np.clip(cosine_sim(tr["emb"][t], tr["emb"][t - loop_frames]), 0.0, 1.0))
+                        seam = float(np.clip(1.0 - sim, 0.0, 1.0))
+
+        err = float(np.clip(err * (1.05 + 1.2 * vals["nov"] + 1.2 * vals["attn"] + 1.6 * seam), 0, 1))
+
+        # If enabled, let true predictor surprise modulate the flare.
+        if pred_err01 is not None:
+            pe = float(pred_err01[t])
+            # Blend: keep protocol residue (err) but let surprise take the wheel.
+            err = float(np.clip(0.35 * err + 0.85 * pe, 0.0, 1.0))
 
         # Accent palette drift.
         hue = (0.99 * hue + 0.01 * (0.15 + 0.8 * vals["centroid"]) + 0.008 * nov) % 1.0
@@ -145,7 +204,16 @@ def render(
         cy = int(H * 0.78)
         cv2.circle(img, (mid, cy), rad, col, 3, cv2.LINE_AA)
         cv2.circle(img, (mid, cy), int(rad * 0.55), (255, 255, 255), 1, cv2.LINE_AA)
-        cv2.putText(img, f"residue {err:.2f}", (mid - 80, cy + rad + 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (230, 230, 230), 1, cv2.LINE_AA)
+        cv2.putText(
+            img,
+            (f"residue {err:.2f} | conf {rec:.2f} | attn {vals['attn']:.2f}" + (f" | pred {float(pred_err01[t]):.2f}" if pred_err01 is not None else "")),
+            (mid - 220, cy + rad + 26),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (230, 230, 230),
+            1,
+            cv2.LINE_AA,
+        )
 
         vw.write(img)
 
@@ -162,6 +230,14 @@ def main():
     ap.add_argument("--seed", type=int, default=25)
     ap.add_argument("--start", type=float, default=None, help="start time in seconds")
     ap.add_argument("--duration", type=float, default=None, help="duration in seconds")
+    ap.add_argument("--loop-sec", type=float, default=None, help="Loop period in seconds (for loop-aware seam/recurrence probes)")
+    ap.add_argument(
+        "--pred-driver",
+        type=str,
+        default="none",
+        choices=["none", "mel", "emb"],
+        help="Drive residue flare by online predictor error (mel or embedding)",
+    )
     args = ap.parse_args()
 
     render(
@@ -172,6 +248,8 @@ def main():
         seed=args.seed,
         start=args.start,
         duration=args.duration,
+        loop_sec=args.loop_sec,
+        pred_driver=args.pred_driver,
     )
 
 

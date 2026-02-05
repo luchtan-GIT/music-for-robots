@@ -61,8 +61,9 @@ def render(
     seed: int = 22,
     start: float | None = None,
     duration: float | None = None,
+    loop_sec: float | None = None,
 ) -> None:
-    tr = extract_tracks(audio, fps=fps, start=start, duration=duration)
+    tr = extract_tracks(audio, fps=fps, start=start, duration=duration, return_embedding=True)
     T = len(tr["rms"])
 
     rng = np.random.default_rng(seed)
@@ -86,8 +87,21 @@ def render(
     for t in tqdm(range(T), desc="compression_loom"):
         rms = float(tr["rms"][t])
         nov = float(tr["novelty"][t])
-        rec = float(tr["rec"][t])
+        nov_fast = float(tr.get("novelty_fast", tr["novelty"])[t])
+        hab = float(tr.get("habituation", np.zeros(T, np.float32))[t])
         cen = float(tr["centroid"][t])
+
+        # Confidence / recurrence: loop-aware when possible.
+        rec = float(tr["rec"][t])
+        if loop_sec is not None and tr.get("emb", None) is not None:
+            loop_frames = int(round(loop_sec * fps))
+            if loop_frames > 0 and t - loop_frames >= 0:
+                from _audio_features import cosine_sim
+
+                rec = float(np.clip(cosine_sim(tr["emb"][t], tr["emb"][t - loop_frames]), 0.0, 1.0))
+
+        # Attention proxy
+        attn = float(np.clip(nov_fast * (1.0 - hab) * 1.6, 0.0, 1.0))
 
         # Narrative position across the whole piece (0..1).
         u = t / max(1, T - 1)
@@ -96,28 +110,29 @@ def render(
         density = np.clip(0.55 + 0.75 * (0.5 - abs(u - 0.55)), 0.35, 0.95)
         settle = np.clip((u - 0.70) / 0.30, 0.0, 1.0)
 
-        # Ink persistence: recurrence “remembers”, late settle “repairs”.
-        ink = (ink.astype(np.float32) * (0.960 + 0.03 * rec + 0.01 * settle)).astype(np.uint8)
+        # Ink persistence: confidence “remembers”, late settle “repairs”.
+        # Attention temporarily loosens the weave (so micro-events show up).
+        ink = (ink.astype(np.float32) * (0.958 + 0.032 * rec + 0.010 * settle - 0.018 * attn)).astype(np.uint8)
 
         img = np.zeros((H, W, 3), np.uint8)
         img[:] = bg
 
         # Audio-reactive palette drift:
         # - centroid pushes hue toward warmer colors
-        # - novelty increases speed of drift
-        hue = (0.990 * hue + 0.010 * (0.10 + 0.85 * cen) + 0.008 * nov) % 1.0
+        # - attention increases speed of drift
+        hue = (0.992 * hue + 0.008 * (0.10 + 0.85 * cen) + 0.012 * attn) % 1.0
 
-        sat = float(np.clip(0.60 + 0.35 * nov + 0.20 * (1.0 - rec), 0.35, 1.0))
-        val = float(np.clip(0.50 + 0.45 * (0.6 + 0.4 * rec) + 0.15 * rms, 0.40, 1.0))
+        sat = float(np.clip(0.55 + 0.35 * attn + 0.18 * (1.0 - rec), 0.25, 1.0))
+        val = float(np.clip(0.46 + 0.48 * (0.6 + 0.4 * rec) + 0.18 * rms + 0.10 * attn, 0.35, 1.0))
 
         base_col = _hsv_to_rgb(hue, sat, val)
         # Weft palette: rotate hue slightly for contrast.
         base_col2 = _hsv_to_rgb((hue + 0.22) % 1.0, sat * 0.9, min(1.0, val * 1.05))
 
         # Motion/tension parameters.
-        warp = (0.3 + 1.6 * nov) * (1.0 - 0.35 * settle)
+        warp = (0.25 + 1.2 * attn) * (1.0 - 0.35 * settle)
         tight = 0.4 + 2.1 * rec + 0.6 * density
-        snag = max(0.0, nov - 0.66)
+        snag = max(0.0, attn - 0.55)
 
         # Fewer threads early, more mid, fewer late.
         stride = int(np.clip(7 - 4 * density, 2, 7))
@@ -176,6 +191,7 @@ def main():
     ap.add_argument("--seed", type=int, default=22)
     ap.add_argument("--start", type=float, default=None, help="start time in seconds")
     ap.add_argument("--duration", type=float, default=None, help="duration in seconds")
+    ap.add_argument("--loop-sec", type=float, default=None, help="Loop period in seconds (for loop-aware seam/recurrence probes)")
     args = ap.parse_args()
 
     render(
@@ -186,6 +202,7 @@ def main():
         seed=args.seed,
         start=args.start,
         duration=args.duration,
+        loop_sec=args.loop_sec,
     )
 
 

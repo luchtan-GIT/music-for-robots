@@ -53,8 +53,9 @@ def render(
     seed: int = 23,
     start: float | None = None,
     duration: float | None = None,
+    loop_sec: float | None = None,
 ) -> None:
-    tr = extract_tracks(audio, fps=fps, start=start, duration=duration)
+    tr = extract_tracks(audio, fps=fps, start=start, duration=duration, return_embedding=True)
     T = len(tr["rms"])
 
     rng = np.random.default_rng(seed)
@@ -70,20 +71,33 @@ def render(
     hue = 0.58
 
     for t in tqdm(range(T), desc="recurrence_constellation"):
-        rec = float(tr["rec"][t])
         nov = float(tr["novelty"][t])
+        nov_fast = float(tr.get("novelty_fast", tr["novelty"])[t])
+        hab = float(tr.get("habituation", np.zeros(T, np.float32))[t])
         cen = float(tr["centroid"][t])
         bw = float(tr["bandwidth"][t])
         ent = float(tr["entropy"][t])
         flux = float(tr["flux"][t])
 
+        # Confidence / recurrence: loop-aware when possible.
+        rec = float(tr["rec"][t])
+        if loop_sec is not None and tr.get("emb", None) is not None:
+            loop_frames = int(round(loop_sec * fps))
+            if loop_frames > 0 and t - loop_frames >= 0:
+                from _audio_features import cosine_sim
+
+                rec = float(np.clip(cosine_sim(tr["emb"][t], tr["emb"][t - loop_frames]), 0.0, 1.0))
+
+        # Attention proxy
+        attn = float(np.clip(nov_fast * (1.0 - hab) * 1.6, 0.0, 1.0))
+
         # Turbulence proxy (same idea as in loop_probes):
         tb = float(np.clip(0.55 * ent + 0.45 * flux, 0.0, 1.0))
 
-        # Hue drift: centroid pushes warmth; novelty accelerates drift.
-        hue = (0.985 * hue + 0.015 * (0.10 + 0.85 * cen) + 0.010 * nov) % 1.0
-        sat = float(np.clip(0.55 + 0.35 * tb + 0.25 * nov, 0.35, 1.0))
-        val = float(np.clip(0.35 + 0.55 * rec + 0.25 * (1.0 - tb), 0.25, 1.0))
+        # Hue drift: centroid pushes warmth; attention accelerates drift.
+        hue = (0.988 * hue + 0.012 * (0.10 + 0.85 * cen) + 0.012 * attn) % 1.0
+        sat = float(np.clip(0.50 + 0.35 * tb + 0.35 * attn, 0.25, 1.0))
+        val = float(np.clip(0.25 + 0.65 * rec + 0.20 * (1.0 - tb) + 0.10 * attn, 0.20, 1.0))
         rgb = _rgb_from_hsv(hue, sat, val)
 
         img = np.zeros((H, W, 3), np.uint8)
@@ -101,11 +115,12 @@ def render(
             pts.pop(0)
 
         # Connect to recent points.
-        # Recurrence brightens edges; distance attenuates.
+        # Confidence brightens edges; distance attenuates; attention adds extra "reach".
         for j in range(max(0, len(pts) - 90), len(pts) - 1, 3):
             x2, y2, r2, n2, tb2 = pts[j]
             d = math.hypot(x - x2, y - y2) / (0.9 * W)
             w = max(0.0, (0.7 * rec + 0.3 * r2) - 0.30) * (1.0 - d)
+            w *= (0.85 + 0.60 * attn)
             if w <= 0:
                 continue
 
@@ -118,12 +133,12 @@ def render(
 
         # Draw points with a mild glow.
         for (px, py, r0, n0, tb0) in pts[::2]:
-            rad = int(1 + 4 * r0 + 4 * max(0.0, n0 - 0.60))
-            glow = 0.35 + 0.65 * r0
+            rad = int(1 + 4 * r0 + 4 * max(0.0, n0 - 0.60) + 5 * attn)
+            glow = 0.30 + 0.70 * r0 + 0.35 * attn
             col = (
-                int(np.clip(40 + rgb[0] * glow, 0, 255)),
-                int(np.clip(40 + rgb[1] * glow, 0, 255)),
-                int(np.clip(50 + rgb[2] * (0.6 + 0.4 * (1.0 - tb0)), 0, 255)),
+                int(np.clip(35 + rgb[0] * glow, 0, 255)),
+                int(np.clip(35 + rgb[1] * glow, 0, 255)),
+                int(np.clip(45 + rgb[2] * (0.6 + 0.4 * (1.0 - tb0)), 0, 255)),
             )
             cv2.circle(img, (px, py), rad, col, -1, cv2.LINE_AA)
 
@@ -145,6 +160,7 @@ def main():
     ap.add_argument("--seed", type=int, default=23)
     ap.add_argument("--start", type=float, default=None, help="start time in seconds")
     ap.add_argument("--duration", type=float, default=None, help="duration in seconds")
+    ap.add_argument("--loop-sec", type=float, default=None, help="Loop period in seconds (for loop-aware seam/recurrence probes)")
     args = ap.parse_args()
 
     render(
@@ -155,6 +171,7 @@ def main():
         seed=args.seed,
         start=args.start,
         duration=args.duration,
+        loop_sec=args.loop_sec,
     )
 
 
