@@ -3,12 +3,13 @@
 This folder contains **stills** from the full-length render used for the Mechanical Ear / Music For Robots article.
 
 ## Full video (reference)
-The MP4 is too large for a normal git commit.
+The MP4 is too large for a normal git commit, so it’s published as a **GitHub Release asset**.
 
-We recommend publishing it as a **GitHub Release asset** (or via Git LFS) and pasting the URL here.
+Release:
+- https://github.com/luchtan-GIT/music-for-robots/releases/tag/broken-loops-rc-v1
 
-Planned filename:
-- `recurrence_constellation_pca2_pathchapters_FULL_1080p.mp4`
+Asset:
+- https://github.com/luchtan-GIT/music-for-robots/releases/download/broken-loops-rc-v1/recurrence_constellation_pca2_pathchapters_FULL_1080p.mp4
 
 Stills included:
 - `frame_00-00-10.png`
